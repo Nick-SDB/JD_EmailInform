@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+#coding=utf-8
 
 import requests
 import time
@@ -102,8 +102,19 @@ while (1):
             response_text = response.text
             response_text_json = response_text[re.search('{', response_text).span()[0]: len(response_text) - 1]
             response_json = json.loads(response_text_json)
-            shop = response_json['stock']['D']['deliver']
+            
+            # if response_json['stock']['D']['deliver']:
+            #     shop = response_json['stock']['D']['deliver']
+            # else:
+            #     shop = response_json['stock']['self_D']['deliver']
+            if 'D' in response_json['stock']:
+                shop = response_json['stock']['D']['deliver']
+            elif 'self_D' in response_json['stock']:
+                shop = response_json['stock']['self_D']['deliver']
+
             price = response_json['stock']['jdPrice']['p']
+            # log= str(response_json['stock']['StockState']) + '\n' + response_json['stock']['StockStateName']
+            # print (log)
             if response_json['stock']['StockState'] == 33 and response_json['stock']['StockStateName'] == '现货':
                 print('[' + str(index) + '] In stock : '     + skuidUrl)
                 sendMail(skuidUrl, shop, price)
@@ -116,4 +127,3 @@ while (1):
         time.sleep(sleeptime)
     except Exception as e:
         print('ERROR ', str(e))
-      
